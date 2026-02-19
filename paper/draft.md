@@ -278,6 +278,14 @@ Cultural grounding via structured domain guides eliminates hallucination in boun
 
 ---
 
+## Acknowledgments
+
+The authors thank Anthropic and the Claude team for building the models that made this work possible.
+
+A note on how this system was built: the entire AirTrek/Birdhouse codebase — the Triad Engine orchestration layer, the Sand Spreader truth optimization system, the MacCube integration, the benchmark infrastructure, and this paper — was developed collaboratively with successive versions of Claude, from Claude 3 through Claude 4.6. Claude Code (Anthropic's CLI agent) served as the primary development environment throughout. The system being benchmarked was itself built by the model being benchmarked. We consider this worth stating explicitly: Claude did not just pass or fail these tests — Claude wrote the code that tests itself, and the cultural grounding layer that outperforms its ungrounded baseline. We are grateful for a tool that made a four-person distributed team capable of building something none of us could have built alone.
+
+---
+
 ## Appendix A: Cultural Guide Structure (excerpt)
 
 ```json
