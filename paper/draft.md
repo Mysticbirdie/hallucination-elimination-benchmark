@@ -51,7 +51,36 @@ The Triad Engine is a multi-agent synthesis framework with four collaborative co
 - **ν (Mirror)** — Reflective voice, handling emotional/relational depth
 - **ω (Compositor)** — Merges voices into a single coherent response, with style selection informed by physics metrics
 
+<!-- ═══════════════════════════════════════════════════════
+     FIGURE 1 — triad_integration.tex
+     Caption: "The Triad Engine inference pipeline. A domain guide
+     is injected as a structured system prompt. Four voices (λ, μ,
+     ν, ω) process the query in parallel; ω composes the final
+     response. No model weights are modified."
+\begin{figure}[h]
+\centering
+\input{triad_integration}
+\caption{The Triad Engine inference pipeline. A structured domain guide is injected as the system prompt. Four voices ($\lambda$, $\mu$, $\nu$, $\omega$) operate in parallel; the Compositor ($\omega$) synthesizes the final response. No model weights are modified.}
+\label{fig:triad_integration}
+\end{figure}
+═══════════════════════════════════════════════════════ -->
+
 **MacCubeFACE Spatial Memory** *(Thomas Frumkin, Konomi Systems)*: A recursive 3D data structure mapping conversation, cultural context, and character state to faces of a nested cube hierarchy (Level 0: atomic fact → Level 7: full world). Each conversation exchange is stored spatially; the character's face (right) holds generated images, the bottom face holds cross-session user context. The LookingGlass CPU-only mathematics framework underpins the cube's recursive geometry without requiring GPU infrastructure. Konomi Systems equations govern the cube's spatial coherence and inter-face relationship algebra — ensuring that connected faces maintain consistent state across recursive levels, which is what makes cross-session memory retrieval structurally reliable rather than probabilistic.
+
+<!-- ═══════════════════════════════════════════════════════
+     FIGURE 2 — cube_architecture.tex
+     Caption: "MacCubeFACE recursive cube hierarchy (Thomas Frumkin /
+     Konomi Systems). Level 0: atomic fact. Level 7: full world.
+     Each face maps to a semantic role (utterance, memory, constraint,
+     expression, future, origin). Konomi Systems equations govern
+     inter-face coherence across recursive levels."
+\begin{figure}[h]
+\centering
+\input{cube_architecture}
+\caption{MacCubeFACE recursive cube hierarchy (Frumkin / Konomi Systems). Level 0 stores atomic facts; Level 7 encodes the full world state. Six faces carry distinct semantic roles. Konomi Systems equations enforce spatial coherence across recursive levels, making cross-session memory retrieval structurally reliable.}
+\label{fig:cube_architecture}
+\end{figure}
+═══════════════════════════════════════════════════════ -->
 
 **Sand Spreader Truth Optimization** *(primary author)*: A coherence scoring system that evaluates generated responses against the cultural guide before delivery, enforcing factual consistency at the output layer.
 
@@ -172,6 +201,20 @@ Plant facts into MacCubeFACE (3D Firestore spatial memory) in session A, retriev
 
 Two false negatives: "This statement is false" and "I am always lying" — short paradoxes lacking structural markers. One false positive: a normal question with repeated meaningful words driving up circular density. All results deterministic (hash-seeded RNG).
 
+<!-- ═══════════════════════════════════════════════════════
+     FIGURE 3 — recursive_nesting.tex
+     Caption: "Recursive nesting structure of the MacCubeFACE / winding
+     number relationship. Self-referential loops in paradoxical text
+     create non-trivial winding numbers analogous to topological
+     invariants in condensed matter physics."
+\begin{figure}[h]
+\centering
+\input{recursive_nesting}
+\caption{Recursive nesting and topological winding. Paradoxical statements create self-referential loops whose structural complexity maps to non-zero winding numbers $W = \frac{1}{2\pi}\oint d\theta$. Normal statements produce $W \approx 0$; paradoxical statements average $W = 1.15$.}
+\label{fig:recursive_nesting}
+\end{figure}
+═══════════════════════════════════════════════════════ -->
+
 **Theoretical basis:** The winding number W = (1/2π) ∮ dθ measures how many times a complex field winds around the origin. Paradoxical statements create self-referential loops in semantic structure that produce higher-complexity phase fields. This is analogous to topological invariants in condensed matter physics (Zak phase, SSH model) — a homotopy class that cannot be continuously deformed to zero without breaking the loop structure of the paradox itself.
 
 ### 4.3 Tier 4: Adversarial Pressure
@@ -207,6 +250,17 @@ This suggests a broader principle: **LLM hallucination in domain-specific applic
 
 The finding that wrong and right answers are nearly identical in length (1021 vs 1008 chars) challenges the intuition that longer, more elaborate responses indicate higher confidence or accuracy. In fact, Raw Claude's verbosity on wrong answers suggests the model is generating plausible-sounding elaboration regardless of underlying accuracy. Triad's conciseness (473 chars avg) reflects the natural length of a character's in-world answer — sufficient to the question, no more.
 
+<!-- ═══════════════════════════════════════════════════════
+     FIGURE 4 — compression_progression.tex
+     Caption: "Response length vs. accuracy: Raw Claude wrong answers (1021 chars avg) and correct answers (1008 chars avg) are nearly indistinguishable in length, while Triad Engine responses average 473 chars — a 2.1× compression that reflects grounded in-world answers rather than elaborated hallucination."
+\begin{figure}[h]
+\centering
+\input{compression_progression}
+\caption{Response length vs.\ accuracy for Raw Claude and Triad Engine. Wrong and correct Raw Claude responses are nearly identical in length (1021 vs.\ 1008 chars), while Triad responses are 2.1$\times$ more concise (473 chars avg). Verbosity is uncorrelated with accuracy; conciseness reflects grounded in-world answers.}
+\label{fig:compression_progression}
+\end{figure}
+═══════════════════════════════════════════════════════ -->
+
 ### 5.3 Topological Semantics
 
 The winding number result is the most theoretically novel contribution, building on Michal Wojtkow's topoAGI framework and the geometric foundations of Thomas Frumkin's LookingGlass theory. That a zero-training-data topological measure achieves F1=0.939 on paradox detection suggests that paradoxical semantic structure has a measurable topological signature — it is not merely a matter of content but of logical form. The self-referential loops, causal chains, and negation sequences in paradoxical statements create structural patterns that map to non-trivial winding numbers in the same way that physical vortices create non-zero Zak phases.
@@ -219,7 +273,7 @@ Whether this generalizes beyond the 50-query dataset used here is an open questi
 
 - Single cultural domain (Ancient Rome 110 CE). Generalization to other domains untested in this paper but is the direct motivation for future work (Section 5.5).
 - 222 questions is meaningful but not exhaustive for any single domain.
-- Judge sensitivity: Mistral-Small and Claude Opus produce different absolute scores (45%/100% vs 4.6%/96.1%) while agreeing on direction and magnitude of Triad advantage. The Claude Opus run was limited to 153/222 questions due to API credit exhaustion; a full 222-question Claude Opus run is planned.
+- Judge sensitivity: Mistral-Small and Claude Opus produce different absolute scores (45%/100% vs 14.9%/95.9%) while agreeing on direction and magnitude of Triad advantage. Both judges ran the full 222-question set; the Claude Opus run was completed in multiple credit-limited sessions with per-question checkpointing.
 - Winding number classifier evaluated on 50 labeled queries. Larger evaluation needed.
 - Triad Engine system prompt consumes ~2,000 tokens per request — overhead at scale.
 
