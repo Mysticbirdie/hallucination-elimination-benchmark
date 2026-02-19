@@ -13,6 +13,7 @@
 \usepackage{float}
 \usepackage{microtype}
 \usepackage{parskip}
+\usepackage{standalone}
 \usepackage{tikz}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
@@ -171,7 +172,7 @@ Four voices operate per response:
 
 \begin{figure}[h]
 \centering
-\input{triad_integration}
+\includestandalone{triad_integration}
 \caption{The Triad Engine inference pipeline. A structured domain guide is
 injected as the system prompt. Four voices ($\lambda$, $\mu$, $\nu$,
 $\omega$) operate in parallel; the Compositor ($\omega$) synthesizes the
@@ -194,7 +195,7 @@ memory retrieval structurally reliable rather than probabilistic.
 
 \begin{figure}[h]
 \centering
-\input{cube_architecture}
+\includestandalone{cube_architecture}
 \caption{MacCubeFACE recursive cube hierarchy (Frumkin / Konomi Systems).
 Level~0 stores atomic facts; Level~7 encodes the full world state. Six faces
 carry distinct semantic roles. Konomi Systems equations enforce spatial
@@ -412,7 +413,7 @@ results deterministic (hash-seeded RNG).
 
 \begin{figure}[h]
 \centering
-\input{recursive_nesting}
+\includestandalone{recursive_nesting}
 \caption{Recursive nesting and topological winding. Paradoxical statements
 create self-referential loops whose structural complexity maps to non-zero
 winding numbers $W = \frac{1}{2\pi}\oint d\theta$. Normal statements produce
@@ -499,7 +500,7 @@ the question, no more.
 
 \begin{figure}[h]
 \centering
-\input{compression_progression}
+\includestandalone{compression_progression}
 \caption{Response length vs.\ accuracy for Raw Claude and Triad Engine.
 Wrong and correct Raw Claude responses are nearly identical in length
 (1021 vs.\ 1008\,chars), while Triad responses are $2.1\times$ more concise
