@@ -334,9 +334,11 @@ Cultural grounding via structured domain guides eliminates hallucination in boun
 
 ## Acknowledgments
 
+The Triad Engine was conceived by Kelly Hohman in summer 2024. The central insight — that domain-specific LLM hallucination is a context failure rather than a model failure, and that a structured epistemic guide can correct it at inference time without fine-tuning — emerged from Kelly's domain expertise and sustained iteration using both Claude and ChatGPT as co-development tools from the project's earliest stages. The multi-voice architecture, cultural grounding design, character voice system, and benchmark methodology are Kelly's original contributions, developed through direct collaboration with AI tools that Kelly directed.
+
 The authors thank Anthropic and the Claude team for building the models that made this work possible.
 
-A note on how this system was built: approximately 85% of the codebase was written by Claude (versions 3 through 4.6) via Claude Code — including the Triad Engine orchestration layer, Sand Spreader truth optimization, MacCube integration, benchmark infrastructure, React frontend, API endpoints, and this paper. The remaining ~15% was written by Cascade (Windsurf), primarily for project scaffolding, configuration, and build tooling. Claude did not just pass or fail these tests — Claude wrote the code that tests itself, and the cultural grounding layer that outperforms its ungrounded baseline. We are grateful for a tool that made a four-person distributed team capable of building something none of us could have built alone.
+A note on how the codebase was built: approximately 85% was written by Claude (versions 3 through 4.6) via Claude Code — including the Triad Engine orchestration layer, Sand Spreader truth optimization, MacCube integration, benchmark infrastructure, React frontend, API endpoints, and this paper. The remaining ~15% was written by Cascade (Windsurf), primarily for project scaffolding, configuration, and build tooling. Claude did not just pass or fail these tests — Claude wrote the code that tests itself, and the cultural grounding layer that outperforms its ungrounded baseline. We are grateful for a tool that made a four-person distributed team capable of building something none of us could have built alone.
 
 ---
 
