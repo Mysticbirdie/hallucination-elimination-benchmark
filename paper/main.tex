@@ -16,7 +16,7 @@
 \usepackage[subpreambles=true]{standalone}
 \usepackage{tikz}
 \usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
+\pgfplotsset{compat=1.16}
 
 \lstset{
   basicstyle=\small\ttfamily,
@@ -42,7 +42,7 @@
   \textsuperscript{4}Independent
 }
 
-\date{Submitted: [date] \\ arXiv: cs.AI}
+\date{February 2026 \\ arXiv: cs.AI}
 
 \begin{document}
 \maketitle
@@ -733,34 +733,60 @@ domain-specific truth is large. That gap is large in every specialized field.
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Related Work}
 
-\begin{itemize}
-  \item \textbf{Retrieval-Augmented Generation (RAG):} RAG uses dynamic
-        retrieval from a vector database at query time. Cultural grounding
-        uses a static, validated document---no embedding model, no vector
-        search, no retrieval latency, no hallucinated citations to
-        non-existent chunks. For bounded domains where the complete knowledge
-        base fits in a context window, cultural grounding is simpler, faster,
-        and more verifiable.
-  \item \textbf{Constitutional AI:} Operates on ethical principles rather
-        than domain facts. Cultural grounding is orthogonal---it enforces
-        factual constraints, not value constraints.
-  \item \textbf{Topological data analysis in NLP:} Prior work applies
-        persistent homology to word embeddings (topological shape of semantic
-        space). Our winding number approach operates on structural markers in
-        raw text with no embeddings and no training, making it applicable at
-        inference time with zero overhead.
-  \item \textbf{Character consistency in LLMs:} Prior work measures persona
-        maintenance across conversation turns (within-session). We measure
-        factual consistency across simultaneous independent instantiations of
-        6 different personas---a stricter test of ground-truth anchoring
-        rather than conversational coherence.
-  \item \textbf{Domain-specific fine-tuning:} Fine-tuning adapts model
-        weights for a domain but requires training data, compute, and
-        retraining when the domain evolves. Cultural grounding requires only
-        an updated JSON document and works with any base model. A hospital can
-        update a drug contraindication list by editing a file, not by
-        retraining a model.
-\end{itemize}
+\textbf{Prior disclosure.} An earlier version of this benchmark was publicly
+released as an open-source repository~\cite{hohman2025benchmark} and
+presented on Hacker News~\cite{hohman2025triad}. The repository has been
+cloned over 40 times; no rebuttal or failed reproduction has been published.
+
+\textbf{Hallucination benchmarks.} TruthfulQA~\cite{lin2022truthfulqa}
+measures general factual accuracy across 817 adversarially crafted questions.
+HaluEval~\cite{li2023halueval} provides 35,000 hallucination examples across
+QA, dialogue, and summarization. Both measure \emph{general} factuality; our
+benchmark measures \emph{domain-specific} grounding, where the failure mode
+is not ignorance but temporal/cultural misattribution.
+
+\textbf{Retrieval-Augmented Generation.} RAG~\cite{lewis2020retrieval} uses
+dynamic retrieval from a vector database at query time. Cultural grounding
+uses a static, validated document---no embedding model, no vector search, no
+retrieval latency, no hallucinated citations to non-existent chunks. For
+bounded domains where the complete knowledge base fits in a context window,
+cultural grounding is simpler, faster, and more verifiable.
+
+\textbf{Constitutional AI.} Bai et al.~\cite{bai2022constitutional} enforce
+ethical principles through self-improvement. Cultural grounding is
+orthogonal---it enforces factual constraints, not value constraints. A Roman
+character in 110~CE should \emph{not} apply modern ethics; Constitutional AI
+would push toward them.
+
+\textbf{In-context learning and structured prompting.} The Triad Engine
+builds on the foundational insight that LLMs can be steered at inference time
+through structured prompts~\cite{brown2020language}. Chain-of-thought
+prompting~\cite{wei2022chain} demonstrated that prompt structure improves
+reasoning. Cultural grounding extends this: rather than reasoning scaffolds,
+we inject an entire epistemic world as the prompt context.
+
+\textbf{Topological data analysis in NLP.} Zhu~\cite{zhu2013persistent}
+introduced persistent homology for text representation. Prior work operates
+on word embedding spaces~\cite{brown2020language}. Our winding number
+approach operates on structural markers in raw text with no embeddings and no
+training, making it applicable at inference time with zero overhead.
+
+\textbf{Character consistency in LLMs.} CharacterEval~\cite{tu2024charactereval}
+measures persona maintenance across conversation turns (within-session). We
+measure factual consistency across simultaneous independent instantiations of
+6 different personas---a stricter test of ground-truth anchoring rather than
+conversational coherence.
+
+\textbf{Domain-specific fine-tuning.} Fine-tuning adapts model weights for a
+domain but requires training data, compute, and retraining when the domain
+evolves~\cite{yu2024comparison}. Cultural grounding requires only an updated
+JSON document and works with any base model. A hospital can update a drug
+contraindication list by editing a file, not by retraining a model.
+
+\textbf{Alignment approaches.} RLHF~\cite{christiano2017deep} and
+Constitutional AI~\cite{bai2022constitutional} modify model behavior at
+training time. Cultural grounding operates at inference time with no weight
+modification---the two approaches are complementary, not competing.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Conclusion}
@@ -854,5 +880,8 @@ def compute_winding(text):
 
 Available at:
 \url{https://github.com/Mysticbirdie/hallucination-elimination-benchmark}
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
