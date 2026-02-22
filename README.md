@@ -4,8 +4,6 @@
 
 This repository contains the full benchmark suite, question sets, results, and evaluation code for the paper:
 
-> *Cultural Grounding Eliminates LLM Hallucination: The Triad Engine Benchmark*
-> Kelly Hohman, Thomas Frumkin, Simon Gant, Michal Wojtkow — 2026
 
 ---
 
