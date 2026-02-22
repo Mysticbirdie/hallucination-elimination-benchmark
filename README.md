@@ -280,7 +280,7 @@ Topological field theory applied to semantic analysis — zero training data.
 ## Contributors
 
 - **Kelly Hohman** — Triad Engine architecture, cultural grounding system, Sand Spreader truth optimization, benchmark design
-- **Thomas Frumkin** ([Konomi Systems](https://github.com/thomasfrumkin)) — MacCubeFACE recursive spatial architecture, LookingGlass CPU-only mathematics framework, Konomi Systems equations
+- **Thomas Frumkin** ([Konomi Systems](https://github.com/thomasfrumkin)) — MacCubeFACE recursive spatial equations, LookingGlass CPU-only mathematics framework, Konomi Systems equations
 - **Simon Gant** — Retrocausal temporal reasoning components
 - **Michal Wojtkow** — topoAGI topological analysis library (winding number classifier)
 
