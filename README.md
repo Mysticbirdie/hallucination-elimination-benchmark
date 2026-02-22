@@ -11,7 +11,9 @@ This repository contains the full benchmark suite, question sets, results, and e
 
 ## Results at a Glance
 
-| System | Mistral-Small Judge | Claude Opus Judge |
+### Claude 4.6 — Two Independent Judges
+
+| System | Gemini 2.0 Flash Judge | Claude Opus Judge |
 |---|---|---|
 | Raw Claude 4.6 (no grounding) | 45.0% | 14.9% |
 | Triad Engine + Claude 4.6 | **100.0%** | **95.9%** |
@@ -20,6 +22,18 @@ This repository contains the full benchmark suite, question sets, results, and e
 **222 questions · 5 categories · 2 independent judges · 0 regressions**
 
 The Triad Engine never degrades: there is no question where the ungrounded model answers correctly but the grounded model fails — under either judge.
+
+### Multi-Model Results (Gemini 2.0 Flash Judge)
+
+| Model | Raw | Triad Engine | ∆ |
+|-------|-----|--------------|---|
+| GPT-5.2 | 26.1% | **100.0%** | +73.9pp |
+| Claude 4.6 | 45.0% | **100.0%** | +55.0pp |
+| Gemini 2.5 Pro | 42.3% | **95.0%** | +52.7pp |
+| Mistral 7B (local, free) | 22.5% | **99.5%** | +77.0pp |
+| Bielik 11B (local, free) | 21.6% | **88.7%** | +67.1pp |
+
+The Triad Engine improves every model across every category. Local open-source models (Mistral 7B, Bielik 11B) run via [Ollama](https://ollama.ai) at zero API cost.
 
 ---
 
@@ -78,12 +92,35 @@ hallucination-elimination-benchmark/
 ├── README.md
 ├── LICENSE                          # MIT — evaluation code
 │
-├── questions/
-│   └── benchmark_questions.py       # All 222 questions + adversarial + consistency sets
+├── data/
+│   ├── questions.json               # 222 benchmark questions (no model answers)
+│   ├── cultural_guide.json          # Rome 110 CE cultural reference (~192K chars)
+│   └── characters.json             # Roman character definitions (3 characters)
+│
+├── runners/                         # Ready-to-run scripts (any model, any provider)
+│   ├── README.md
+│   ├── run_anthropic.py             # Claude (all versions)
+│   ├── run_openai.py                # GPT-4o, GPT-4o-mini, etc.
+│   ├── run_gemini.py                # Gemini 2.0/2.5/1.5
+│   └── run_ollama.py                # Any local model via Ollama (Mistral, Bielik, LLaMA)
 │
 ├── results/
+│   ├── summary.json                 # All results at a glance
+│   ├── claude_opus_judge_222q.json  # Full results: Claude Opus judge (all tiers)
 │   ├── mistral_judge_222q.json      # Full results: Mistral-Small judge
-│   └── claude_opus_judge_222q.json  # Full results: Claude Opus judge (all tiers)
+│   ├── gpt52_raw.json               # GPT-5.2 raw baseline (26.1%)
+│   ├── gpt52_triad.json             # GPT-5.2 + Triad Engine (100.0%)
+│   ├── claude_sonnet_raw.json       # Claude 4.6 raw baseline (45.0%)
+│   ├── claude_sonnet_triad.json     # Claude 4.6 + Triad Engine (100.0%)
+│   ├── gemini_25_pro_raw.json       # Gemini 2.5 Pro raw baseline (42.3%)
+│   ├── gemini_25_pro_triad.json     # Gemini 2.5 Pro + Triad Engine (95.0%)
+│   ├── mistral_7b_raw.json          # Mistral 7B raw baseline (22.5%)
+│   ├── mistral_7b_triad.json        # Mistral 7B + Triad Engine (99.5%)
+│   ├── bielik_11b_raw.json          # Bielik 11B raw baseline (21.6%)
+│   └── bielik_11b_triad_v6.json     # Bielik 11B + Triad Engine v6 (88.7%)
+│
+├── questions/
+│   └── benchmark_questions.py       # All 222 questions + adversarial + consistency sets
 │
 ├── evaluation/
 │   ├── run_benchmark.py             # Benchmark runner — plug in your own grounded system
@@ -95,6 +132,33 @@ hallucination-elimination-benchmark/
 └── paper/
     └── draft.md                     # Full arXiv paper draft
 ```
+
+---
+
+## Quick Start — Reproduce Any Result
+
+```bash
+pip install requests anthropic openai
+
+# Run Claude Haiku (cheapest)
+export ANTHROPIC_API_KEY="your-key"
+export GEMINI_API_KEY="your-key"   # free judge: aistudio.google.com/app/apikey
+python runners/run_anthropic.py --model claude-haiku-4-5-20251001 --triad
+
+# Run GPT-4o mini
+export OPENAI_API_KEY="your-key"
+python runners/run_openai.py --model gpt-4o-mini --triad
+
+# Run Mistral 7B locally (free, requires Ollama)
+ollama pull mistral:instruct
+python runners/run_ollama.py --model mistral:instruct --triad
+
+# Run Bielik 11B locally (open-source Polish LLM)
+ollama pull SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
+python runners/run_ollama.py --model SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M --triad
+```
+
+All runners save after every question and resume automatically if interrupted. Results go to `results/benchmark_{model}_{mode}.json`.
 
 ---
 
