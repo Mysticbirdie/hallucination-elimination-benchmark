@@ -108,8 +108,6 @@ hallucination-elimination-benchmark/
 │   ├── mistral_judge_222q.json      # Full results: Mistral-Small judge
 │   ├── gpt52_raw.json               # GPT-5.2 raw baseline (26.1%)
 │   ├── gpt52_triad.json             # GPT-5.2 + Triad Engine (100.0%)
-│   ├── claude_sonnet_raw.json       # Claude 4.6 raw baseline (45.0%)
-│   ├── claude_sonnet_triad.json     # Claude 4.6 + Triad Engine (100.0%)
 │   ├── gemini_25_pro_raw.json       # Gemini 2.5 Pro raw baseline (42.3%)
 │   ├── gemini_25_pro_triad.json     # Gemini 2.5 Pro + Triad Engine (95.0%)
 │   ├── mistral_7b_raw.json          # Mistral 7B raw baseline (22.5%)
