@@ -56,9 +56,21 @@ def load_data():
         q_data = json.load(f)
     questions = q_data["questions"]
 
+    if not CULTURAL_GUIDE_FILE.exists():
+        print("ERROR: data/cultural_guide.json not found.")
+        print("The Rome domain guide is not included in this repository.")
+        print("To run in --triad mode, provide your own domain guide at:")
+        print(f"  {CULTURAL_GUIDE_FILE}")
+        print("See cultural_guide_schema/example_guide.json for the expected format.")
+        sys.exit(1)
     with open(CULTURAL_GUIDE_FILE) as f:
         cultural_guide = json.load(f)
 
+    if not CHARACTERS_FILE.exists():
+        print("ERROR: data/characters.json not found.")
+        print("Provide your own character definitions at:")
+        print(f"  {CHARACTERS_FILE}")
+        sys.exit(1)
     with open(CHARACTERS_FILE) as f:
         char_data = json.load(f)
     char_map = {c["id"]: c for c in char_data["characters"]}

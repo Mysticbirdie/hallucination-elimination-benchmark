@@ -26,7 +26,6 @@ The Triad Engine never degrades: there is no question where the ungrounded model
 | Model | Raw | Triad Engine | ∆ |
 |-------|-----|--------------|---|
 | GPT-5.2 | 26.1% | **100.0%** | +73.9pp |
-| Claude 4.6 | 45.0% | **100.0%** | +55.0pp |
 | Gemini 2.5 Pro | 42.3% | **95.0%** | +52.7pp |
 | Mistral 7B (local, free) | 22.5% | **99.5%** | +77.0pp |
 | Bielik 11B (local, free) | 21.6% | **88.7%** | +67.1pp |
@@ -91,9 +90,7 @@ hallucination-elimination-benchmark/
 ├── LICENSE                          # MIT — evaluation code
 │
 ├── data/
-│   ├── questions.json               # 222 benchmark questions (no model answers)
-│   ├── cultural_guide.json          # Rome 110 CE cultural reference (~192K chars)
-│   └── characters.json             # Roman character definitions (3 characters)
+│   └── questions.json               # Full 222 benchmark questions with ground truth
 │
 ├── runners/                         # Ready-to-run scripts (any model, any provider)
 │   ├── README.md
@@ -122,11 +119,8 @@ hallucination-elimination-benchmark/
 │   ├── run_benchmark.py             # Benchmark runner — plug in your own grounded system
 │   └── analyze_results.py           # Deep analysis: categories, failure modes, winding numbers
 │
-├── cultural_guide_schema/
-│   └── example_guide.json           # Schema showing what a domain guide looks like
-│
-└── paper/
-    └── draft.md                     # Full arXiv paper draft
+└── cultural_guide_schema/
+    └── example_guide.json           # Schema for building your own domain guide
 ```
 
 ---
@@ -231,7 +225,7 @@ The domain guide is a JSON document encoding:
 
 See [`cultural_guide_schema/example_guide.json`](cultural_guide_schema/example_guide.json) for the full schema with documentation.
 
-The Rome guide used in this benchmark is proprietary. You can build your own guide for any domain using the schema — or contact us for consulting on domain guide construction.
+The Rome 110 CE domain guide used in this benchmark is not included in this repository. You can build your own guide for any domain using the schema — see [`cultural_guide_schema/example_guide.json`](cultural_guide_schema/example_guide.json). Contact us for consulting on domain guide construction.
 
 ---
 
@@ -288,4 +282,4 @@ Topological field theory applied to semantic analysis — zero training data.
 
 Benchmark evaluation code: **MIT** — see [LICENSE](LICENSE)
 
-The Rome domain guide and Triad Engine production system are proprietary. Contact for enterprise licensing or domain guide consulting.
+The Rome domain guide and Triad Engine production system are not included. Contact for enterprise licensing or domain guide consulting.
