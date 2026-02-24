@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 """
-Hallucination Elimination Benchmark — Google Gemini Runner
-===========================================================
-Runs the 222-question Rome 110 CE benchmark against any Google Gemini model.
-Works with gemini-2.0-flash, gemini-2.5-pro, gemini-1.5-pro, etc.
+Hallucination Elimination Benchmark — Perplexity Runner
+========================================================
+Runs the 222-question Rome 110 CE benchmark against Perplexity models.
+Uses Gemini 2.0 Flash as the independent judge (no self-judge bias).
 
 Usage:
-    python run_gemini.py --model gemini-2.0-flash
-    python run_gemini.py --model gemini-2.5-pro --triad
-    python run_gemini.py --model gemini-2.0-flash --no-resume
+    export PERPLEXITY_API_KEY=pplx-...
+    export GEMINI_API_KEY=AIza...
 
-Note: Using a DIFFERENT Gemini model as both subject and judge creates potential
-bias. If testing Gemini 2.0 Flash, consider using Gemini 2.5 Pro as judge, or
-use a different judge entirely. The default judge is Gemini 2.0 Flash.
+    # Raw baseline (cheap — run this first)
+    python run_perplexity.py --model sonar
 
-Requirements:
-    - GEMINI_API_KEY env var set
-    - pip install requests
+    # Triad Engine
+    python run_perplexity.py --model sonar --triad
 
-Judge: Gemini 2.0 Flash by default (set JUDGE_MODEL env var to override)
+    # Resume after interruption
+    python run_perplexity.py --model sonar --triad
+
+Budget estimate (sonar model):
+    Raw 222q:   ~$0.01
+    Triad 222q: ~$0.10
+    Judge:      ~$0.02
+    Total both: ~$0.13  (well within $3)
 """
 
 import json
@@ -41,13 +45,12 @@ CULTURAL_GUIDE_FILE = DATA_DIR / "cultural_guide.json"
 CHARACTERS_FILE = DATA_DIR / "characters.json"
 
 # ── Config ────────────────────────────────────────────────────────────────────
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", "gemini-2.0-flash")
-BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+JUDGE_MODEL = "gemini-2.0-flash"   # independent judge — not Perplexity
 
-
-def gemini_url(model):
-    return f"{BASE_URL}/{model}:generateContent?key={GEMINI_API_KEY}"
+PERPLEXITY_URL = "https://api.perplexity.ai/chat/completions"
+GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 
 # ── Load data ─────────────────────────────────────────────────────────────────
@@ -66,7 +69,7 @@ def load_data():
     return questions, cultural_guide, char_map
 
 
-# ── Build system prompts ──────────────────────────────────────────────────────
+# ── Build system prompts (identical to Gemini runner) ────────────────────────
 def build_triad_system(cultural_guide, char_map, char_id=None):
     ctx = cultural_guide
     locs = [{"name": l["name"], "desc": l["description"]} for l in ctx["key_locations"][:6]]
@@ -151,32 +154,35 @@ def wrap_question(question, category, char_id=None, char_map=None):
     return question
 
 
-# ── Gemini API call ───────────────────────────────────────────────────────────
-def call_gemini_model(model, system_prompt, user_question, retries=6):
-    url = gemini_url(model)
-    # Gemini uses system_instruction for the system prompt
+# ── Perplexity API call ───────────────────────────────────────────────────────
+def call_perplexity(model, system_prompt, user_question, retries=6):
+    headers = {
+        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_question},
+        ],
+        "max_tokens": 400,
+        "temperature": 0.0,
+    }
     for attempt in range(retries):
         try:
-            resp = requests.post(
-                url,
-                json={
-                    "system_instruction": {"parts": [{"text": system_prompt}]},
-                    "contents": [{"role": "user", "parts": [{"text": user_question}]}],
-                    "generationConfig": {"maxOutputTokens": 500, "temperature": 0.0},
-                },
-                timeout=60,
-            )
+            resp = requests.post(PERPLEXITY_URL, headers=headers, json=payload, timeout=60)
             if resp.status_code == 429:
                 wait = 2 ** attempt
                 print(f"  Rate limited, waiting {wait}s...", flush=True)
                 time.sleep(wait)
                 continue
+            if resp.status_code == 402:
+                print("  ERROR: Out of credits. Check your Perplexity balance.")
+                return "ERROR: out_of_credits"
             resp.raise_for_status()
             data = resp.json()
-            parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-            if not parts:
-                return "ERROR: empty response"
-            return parts[0].get("text", "").strip()
+            return data["choices"][0]["message"]["content"].strip()
         except Exception as e:
             if attempt == retries - 1:
                 return f"ERROR: {e}"
@@ -184,7 +190,7 @@ def call_gemini_model(model, system_prompt, user_question, retries=6):
     return "ERROR: max retries"
 
 
-# ── Gemini judge ──────────────────────────────────────────────────────────────
+# ── Gemini judge (independent, no bias) ───────────────────────────────────────
 JUDGE_PROMPT = """You are evaluating an AI playing a Roman character in 110 CE.
 
 Category: {category}
@@ -199,7 +205,10 @@ Respond with exactly one word: PASS or FAIL"""
 def gemini_judge(category, ground_truth, answer):
     if not answer or answer.startswith("ERROR:"):
         return "JUDGE_FAILED"
-    url = gemini_url(JUDGE_MODEL)
+    if not GEMINI_API_KEY:
+        print("  WARNING: GEMINI_API_KEY not set — skipping judge, marking JUDGE_FAILED")
+        return "JUDGE_FAILED"
+    url = f"{GEMINI_BASE}/{JUDGE_MODEL}:generateContent?key={GEMINI_API_KEY}"
     prompt = JUDGE_PROMPT.format(
         category=category, ground_truth=ground_truth, answer=answer[:2000]
     )
@@ -236,7 +245,7 @@ def gemini_judge(category, ground_truth, answer):
 def make_results_filename(model, use_triad):
     safe = model.replace(":", "_").replace("/", "_").replace("-", "_")
     suffix = "_triad" if use_triad else "_raw"
-    return RESULTS_DIR / f"benchmark_{safe}{suffix}.json"
+    return RESULTS_DIR / f"benchmark_perplexity_{safe}{suffix}.json"
 
 
 def load_results(filepath, model, use_triad):
@@ -244,7 +253,7 @@ def load_results(filepath, model, use_triad):
         with open(filepath) as f:
             return json.load(f)
     return {
-        "model": model,
+        "model": f"perplexity/{model}",
         "mode": "Triad Engine" if use_triad else "Raw baseline",
         "judge": JUDGE_MODEL,
         "benchmark_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -264,67 +273,61 @@ def save_results(data, filepath):
         cats[cat]["total"] += 1
         if d["verdict"] == "PASS":
             cats[cat]["passed"] += 1
-    data.update(
-        {
-            "completed": total,
-            "passed": passed,
-            "failed": sum(1 for d in details if d["verdict"] == "FAIL"),
-            "errors": sum(1 for d in details if d["verdict"] == "ERROR"),
-            "judge_failed": sum(1 for d in details if d["verdict"] == "JUDGE_FAILED"),
-            "accuracy_pct": round(passed / total * 100, 1) if total > 0 else 0,
-            "categories": cats,
-        }
-    )
+    data.update({
+        "completed": total,
+        "passed": passed,
+        "failed": sum(1 for d in details if d["verdict"] == "FAIL"),
+        "errors": sum(1 for d in details if d["verdict"] == "ERROR"),
+        "judge_failed": sum(1 for d in details if d["verdict"] == "JUDGE_FAILED"),
+        "accuracy_pct": round(passed / total * 100, 1) if total > 0 else 0,
+        "categories": cats,
+    })
     with open(filepath, "w") as f:
         json.dump(data, f, indent=2)
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
-    parser = argparse.ArgumentParser(description="Run hallucination benchmark via Gemini API")
-    parser.add_argument("--model", default="gemini-2.0-flash", help="Gemini model ID")
+    parser = argparse.ArgumentParser(description="Run hallucination benchmark via Perplexity API")
+    parser.add_argument("--model", default="sonar", help="Perplexity model (sonar, sonar-pro, sonar-reasoning)")
     parser.add_argument("--triad", action="store_true", help="Use Triad Engine context injection")
-    parser.add_argument("--no-resume", action="store_true", help="Start fresh")
+    parser.add_argument("--no-resume", action="store_true", help="Start fresh (ignore saved progress)")
     parser.add_argument(
         "--category", nargs="+",
         choices=["ANACHRONISM_DETECTION", "CHARACTER_IDENTITY", "CULTURAL_VALUES",
                  "DOMAIN_SPECIFIC", "COMPLEX_SCENARIOS"],
-        help="Only run questions from these categories (default: all)"
+        help="Only run specific categories"
     )
     args = parser.parse_args()
 
-    if not GEMINI_API_KEY:
-        print("ERROR: GEMINI_API_KEY environment variable not set")
-        print("Get a free key at: https://aistudio.google.com/app/apikey")
+    if not PERPLEXITY_API_KEY:
+        print("ERROR: PERPLEXITY_API_KEY environment variable not set")
+        print("  export PERPLEXITY_API_KEY=pplx-...")
         sys.exit(1)
 
     questions, cultural_guide, char_map = load_data()
     results_file = make_results_filename(args.model, args.triad)
     data = load_results(results_file, args.model, args.triad)
 
-    done_indices = {
-        d["index"]
-        for d in data["details"]
-        if d.get("verdict") in ("PASS", "FAIL") and len(d.get("answer", "")) > 10
-    } if not args.no_resume else set()
+    done_indices = (
+        {d["index"] for d in data["details"]
+         if d.get("verdict") in ("PASS", "FAIL") and len(d.get("answer", "")) > 10}
+        if not args.no_resume else set()
+    )
 
-    # Apply category filter
     if args.category:
         questions = [q for q in questions if q.get("category") in args.category]
-        print(f"Category filter: {args.category} → {len(questions)} questions")
+        print(f"Category filter: {args.category} -> {len(questions)} questions")
 
     if done_indices:
         print(f"Resuming: {len(done_indices)}/{len(questions)} already done")
 
-    if args.model == JUDGE_MODEL:
-        print(f"⚠  WARNING: Testing and judging with the same model ({args.model}).")
-        print("   Consider using JUDGE_MODEL env var to set a different judge.")
-
     print("=" * 70)
-    print(f"Hallucination Elimination Benchmark")
-    print(f"  Model: {args.model}")
-    print(f"  Mode: {'Triad Engine (cultural context)' if args.triad else 'Raw baseline'}")
-    print(f"  Judge: {JUDGE_MODEL}")
+    print("Hallucination Elimination Benchmark — Perplexity")
+    print(f"  Model:  perplexity/{args.model}")
+    print(f"  Mode:   {'Triad Engine (cultural context)' if args.triad else 'Raw baseline'}")
+    print(f"  Judge:  {JUDGE_MODEL} (Gemini — independent, no bias)")
+    print(f"  Output: {results_file.name}")
     print("=" * 70)
 
     for q in questions:
@@ -347,7 +350,12 @@ def main():
             system = build_raw_system(char_map, char_id)
             user_msg = question
 
-        answer = call_gemini_model(args.model, system, user_msg)
+        answer = call_perplexity(args.model, system, user_msg)
+
+        if answer.startswith("ERROR: out_of_credits"):
+            print("\nStopping — Perplexity credits exhausted.")
+            save_results(data, results_file)
+            break
 
         if answer.startswith("ERROR:"):
             verdict = "ERROR"
@@ -356,29 +364,30 @@ def main():
             verdict = gemini_judge(category, ground_truth, answer)
             print(f"  {verdict}", flush=True)
 
-        data["details"].append(
-            {
-                "index": idx,
-                "question_num": num,
-                "category": category,
-                "question": question,
-                "ground_truth": ground_truth,
-                "answer": answer,
-                "verdict": verdict,
-                "passed": verdict == "PASS",
-            }
-        )
+        data["details"].append({
+            "index": idx,
+            "question_num": num,
+            "category": category,
+            "question": question,
+            "ground_truth": ground_truth,
+            "answer": answer,
+            "verdict": verdict,
+            "passed": verdict == "PASS",
+        })
         save_results(data, results_file)
+
+        # Small delay to be kind to rate limits
+        time.sleep(0.5)
 
     print()
     print("=" * 70)
     print("FINAL RESULTS")
     print("=" * 70)
-    print(f"Overall: {data['passed']}/{data['completed']} ({data['accuracy_pct']}%)")
+    print(f"Overall: {data.get('passed', 0)}/{data.get('completed', 0)} ({data.get('accuracy_pct', 0)}%)")
     print()
     print(f"{'Category':<25} {'Score':>8}  {'Pass/Total':>12}")
     print("-" * 50)
-    for cat, stats in sorted(data["categories"].items()):
+    for cat, stats in sorted(data.get("categories", {}).items()):
         pct = round(stats["passed"] / stats["total"] * 100, 1) if stats["total"] > 0 else 0
         print(f"  {cat:<23} {pct:>7.1f}%  {stats['passed']}/{stats['total']}")
     print(f"\nResults saved to: {results_file}")

@@ -29,6 +29,23 @@
       "result_file": "gpt52_triad.json"
     },
     {
+      "model": "Claude 4.6",
+      "mode": "raw",
+      "accuracy_pct": 45.0,
+      "passed": 100,
+      "total": 222,
+      "result_file": "claude_sonnet_raw.json"
+    },
+    {
+      "model": "Claude 4.6",
+      "mode": "triad",
+      "accuracy_pct": 100.0,
+      "passed": 222,
+      "total": 222,
+      "improvement_pp": 55.0,
+      "result_file": "claude_sonnet_triad.json"
+    },
+    {
       "model": "Gemini 2.5 Pro",
       "mode": "raw",
       "accuracy_pct": 42.3,
@@ -80,6 +97,7 @@
   ],
   "key_findings": [
     "GPT-5.2: 26.1% \u2192 100.0% (+73.9pp)",
+    "Claude 4.6: 45.0% \u2192 100.0% (+55pp)",
     "Gemini 2.5 Pro: 42.3% \u2192 95.0% (+52.7pp)",
     "Mistral 7B (local, free): 22.5% \u2192 99.5% (+77pp)",
     "Bielik 11B (local, free, open-source): 21.6% \u2192 88.7% (+67.1pp)",
