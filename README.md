@@ -2,6 +2,33 @@
 
 **Cultural grounding eliminates LLM hallucination at inference time — no fine-tuning required.**
 
+```
+╔══════════════════════════════════════════════════════════════════════╗
+║              HALLUCINATION ELIMINATION BENCHMARK                     ║
+║                  Ancient Rome · 110 CE · 222 questions               ║
+╠═══════════════════════════╦══════════════════════════════════════════╣
+║  WITHOUT Triad Engine     ║  WITH Triad Engine                       ║
+║                           ║                                          ║
+║  Mistral 7B    →  22.5%  ║  Mistral 7B    →  99.5%  (+77pp)        ║
+║  GPT           →  26.1%  ║  GPT           → 100.0%  (+74pp)        ║
+║  Gemini 2.5    →  42.3%  ║  Gemini 2.5    →  95.0%  (+53pp)        ║
+║  Claude 4.6    →  45.0%  ║  Claude 4.6    → 100.0%  (+55pp)        ║
+║                           ║                                          ║
+║  Models hallucinate by    ║  Zero-training fix: inject a structured  ║
+║  default on domain-       ║  domain guide (JSON) as system prompt.   ║
+║  specific questions       ║  Model weights untouched.                ║
+╠═══════════════════════════╩══════════════════════════════════════════╣
+║  HOW IT WORKS                                                        ║
+║                                                                      ║
+║  User Query → [ Domain Guide JSON ] → Any LLM → Grounded Answer     ║
+║               (what exists · what doesn't · who each agent is)      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  Multi-turn fault injection:  Triad 100%  vs  Raw 72.7%  (+27pp)   ║
+║  Topological paradox detector (zero-shot):  F1 = 0.939              ║
+║  Real-world coding domain (Windsurf/Cascade):  40% → 100%           ║
+╚══════════════════════════════════════════════════════════════════════╝
+```
+
 This repository contains the full benchmark suite, question sets, results, and evaluation code for the paper:
 
 
