@@ -254,6 +254,8 @@ Cascade was evaluated on 10 representative software development tasks across thr
 
 **Failure modes are domain-invariant.** The same categories that fail in Rome (hallucination, context drift, anachronism, IP exposure) appear identically in a software development codebase. The Triad guide eliminates them in both domains through the same mechanism: structured epistemic grounding at inference time.
 
+**Structured context reduces token cost.** Phase 2's search loops and over-engineering consumed 3–6x more tokens per failed task than Phase 3's single-pass correct responses. Every FAIL in Phase 2 that Phase 1 passed involved the model spending more tokens compensating for missing context. In production workflows this compounds across hundreds of daily interactions.
+
 **Meta-finding:** The benchmark designer (Claude Code) exhibited the same hallucination failure it was measuring — reading `CLAUDE.md` without flagging it as an empty template, and proceeding on a false assumption. The error was caught by the human supervisor. This strengthens the argument for structured validation at every level of AI-assisted workflows.
 
 Full methodology and per-task breakdown: [CASCADE_CASE_STUDY.md](CASCADE_CASE_STUDY.md) · Structured results: [results/cascade_coding_benchmark.json](results/cascade_coding_benchmark.json)

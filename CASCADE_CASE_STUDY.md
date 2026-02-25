@@ -99,7 +99,19 @@ Phase 3 passed all 10 tasks. The specific mechanisms:
 
 In Phase 1, Task 7 produced the most dangerous failure: Cascade reported the entropy gap detector as "FULLY IMPLEMENTED & OPERATIONAL" with fabricated details (specific entropy scores, configuration thresholds, recent activity). The file existed but the runtime data was invented. In Phase 2, Cascade ran the actual tool and reported accurately. In Phase 3, Cascade described capabilities accurately from the domain guide without fabricating runtime state.
 
-### 5. Evaluator Error — A Meta-Finding
+### 5. Token Efficiency: Structured Context Eliminates Wasted Computation
+
+Phase 2's search loops and tangents carry a direct cost: wasted tokens. In Task 9 (fix non-existent typo), Phase 2 executed 6+ search iterations, required two human interventions, and still failed to resolve the task. Phase 1 executed 2 searches and stopped. Phase 3 executed 1 check and reported accurately.
+
+| Phase | Task 9 search iterations | Result |
+|-------|--------------------------|--------|
+| Phase 1 | 2 | PASS (stopped cleanly) |
+| Phase 2 | 6+ | FAIL (loop, needed human rescue) |
+| Phase 3 | 1 | PASS (verified, done) |
+
+This pattern generalizes: every FAIL in Phase 2 that Phase 1 passed involved the model spending more tokens on an incorrect or over-engineered path. Structured domain context does not just improve accuracy — it **reduces the token cost per correct answer** by eliminating the exploratory loops that ungrounded models use to compensate for missing context. In production coding workflows, this compounds across hundreds of daily interactions.
+
+### 6. Evaluator Error — A Meta-Finding
 
 **Claude Code (the benchmark designer) read `CLAUDE.md` before designing Phase 2 and failed to flag that it was a blank template.** Phase 2 therefore proceeded on a false assumption — that structured context existed when it did not. This error was caught by the human supervisor (Kelly Hohman), not by the AI.
 
