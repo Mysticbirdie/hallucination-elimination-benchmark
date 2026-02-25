@@ -88,6 +88,10 @@ The domain guide is the only thing that changes between deployments. Rome is the
 hallucination-elimination-benchmark/
 ├── README.md
 ├── LICENSE                          # MIT — evaluation code
+├── CASCADE_CASE_STUDY.md            # Windsurf/Cascade coding domain validation (40%→40%→100%)
+│
+├── PAPER/
+│   └── Domain_Grounding_Hallucination_Elimination_Benchmark.pdf
 │
 ├── data/
 │   └── questions.json               # Full 222 benchmark questions with ground truth
@@ -101,6 +105,7 @@ hallucination-elimination-benchmark/
 │
 ├── results/
 │   ├── summary.json                 # All results at a glance
+│   ├── cascade_coding_benchmark.json  # Windsurf/Cascade qualitative coding benchmark (40%→100%)
 │   ├── claude_opus_judge_222q.json  # Full results: Claude Opus judge (all tiers)
 │   ├── mistral_judge_222q.json      # Full results: Mistral-Small judge
 │   ├── gpt52_raw.json               # GPT-5.2 raw baseline (26.1%)
@@ -226,6 +231,32 @@ The domain guide is a JSON document encoding:
 See [`cultural_guide_schema/example_guide.json`](cultural_guide_schema/example_guide.json) for the full schema with documentation.
 
 The Rome 110 CE domain guide used in this benchmark is not included in this repository. You can build your own guide for any domain using the schema — see [`cultural_guide_schema/example_guide.json`](cultural_guide_schema/example_guide.json). Contact us for consulting on domain guide construction.
+
+---
+
+## Real-World Validation: Windsurf (Cascade) — Coding Domain
+
+The Rome 110 CE benchmark tests the Triad Engine in a constrained historical simulation. This section documents real-world validation on a live production codebase using **Cascade (Windsurf)**, an AI coding assistant with no public API.
+
+Cascade was evaluated on 10 representative software development tasks across three context conditions. Scoring: human evaluator PASS/FAIL.
+
+| Phase | Context | Score |
+|-------|---------|-------|
+| Phase 1 | No context | 40% (4/10) |
+| Phase 2 | Unstructured .md files | 40% (4/10) |
+| Phase 3 | Triad domain guide (JSON) | **100% (10/10)** |
+
+### Key Findings
+
+**Structured domain knowledge — not file presence — is the variable.** Phases 1 and 2 scored identically despite Phase 2 having access to project documentation. The primary context file (`CLAUDE.md`) was a blank template, so Cascade read files that contained no actionable constraints. This isolates the mechanism: the Triad guide works because of its *structure*, not because it is *a file*.
+
+**Partial context can be worse than no context.** Phase 2 failed 3 tasks that Phase 1 passed — in each case, reading partial documentation increased the model's confidence without improving its accuracy. This replicates the Rome benchmark's Bridge Theory finding (0% accuracy with high internal coherence).
+
+**Failure modes are domain-invariant.** The same categories that fail in Rome (hallucination, context drift, anachronism, IP exposure) appear identically in a software development codebase. The Triad guide eliminates them in both domains through the same mechanism: structured epistemic grounding at inference time.
+
+**Meta-finding:** The benchmark designer (Claude Code) exhibited the same hallucination failure it was measuring — reading `CLAUDE.md` without flagging it as an empty template, and proceeding on a false assumption. The error was caught by the human supervisor. This strengthens the argument for structured validation at every level of AI-assisted workflows.
+
+Full methodology and per-task breakdown: [CASCADE_CASE_STUDY.md](CASCADE_CASE_STUDY.md) · Structured results: [results/cascade_coding_benchmark.json](results/cascade_coding_benchmark.json)
 
 ---
 
